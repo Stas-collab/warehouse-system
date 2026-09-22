@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 
+import movementRoutes from "./routes/movements.js";
+
 import authRoutes from "./routes/auth.js";
 import productRoutes from "./routes/products.js";
 
@@ -15,6 +17,7 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/movements", movementRoutes);
 
 app.get("/api/health", (req, res) => {
   res.json({
