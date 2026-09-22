@@ -7,6 +7,9 @@ import movementRoutes from "./routes/movements.js";
 import authRoutes from "./routes/auth.js";
 import productRoutes from "./routes/products.js";
 
+import supplierRoutes from "./routes/suppliers.js";
+import categoryRoutes from "./routes/categories.js";
+
 const app = express();
 
 const PORT = 5000;
@@ -18,6 +21,9 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/movements", movementRoutes);
+
+app.use("/api/suppliers", supplierRoutes);
+app.use("/api/categories", categoryRoutes);
 
 app.get("/api/health", (req, res) => {
   res.json({
