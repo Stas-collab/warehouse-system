@@ -1,0 +1,17 @@
+{
+  "name": "warehouse-app",
+  "version": "1.0.0",
+  "description": "Інформаційна система для керування складськими залишками",
+  "private": true,
+  "main": "electron/main.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix frontend\" \"wait-on http://localhost:5173 && electron .\"",
+    "build": "npm run build --prefix frontend",
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^31.0.2",
+    "concurrently": "^8.2.2",
+    "wait-on": "^7.2.0"
+  }
+}
