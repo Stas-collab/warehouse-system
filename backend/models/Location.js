@@ -5,7 +5,6 @@ const locationSchema = new mongoose.Schema(
     name: {
       type: String,
       required: true,
-      unique: true,
       trim: true,
     },
 
@@ -13,10 +12,18 @@ const locationSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+
+    tenantId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
   },
   {
     timestamps: true,
   },
 );
+
+locationSchema.index({ name: 1, tenantId: 1 }, { unique: true });
 
 export default mongoose.model("Location", locationSchema);

@@ -11,7 +11,6 @@ const productSchema = new mongoose.Schema(
     sku: {
       type: String,
       required: true,
-      unique: true,
       trim: true,
       uppercase: true,
     },
@@ -60,10 +59,18 @@ const productSchema = new mongoose.Schema(
       min: 0,
       default: 0,
     },
+
+    tenantId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
   },
   {
     timestamps: true,
   },
 );
+
+productSchema.index({ sku: 1, tenantId: 1 }, { unique: true });
 
 export default mongoose.model("Product", productSchema);

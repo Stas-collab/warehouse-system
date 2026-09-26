@@ -5,7 +5,6 @@ const categorySchema = new mongoose.Schema(
     name: {
       type: String,
       required: true,
-      unique: true,
       trim: true,
     },
 
@@ -14,10 +13,18 @@ const categorySchema = new mongoose.Schema(
       default: "",
       trim: true,
     },
+
+    tenantId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
   },
   {
     timestamps: true,
   },
 );
+
+categorySchema.index({ name: 1, tenantId: 1 }, { unique: true });
 
 export default mongoose.model("Category", categorySchema);

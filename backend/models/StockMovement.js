@@ -14,6 +14,12 @@ const stockMovementSchema = new mongoose.Schema(
       required: true,
     },
 
+    tenantId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+
     type: {
       type: String,
       enum: ["incoming", "outgoing", "transfer", "adjustment"],
