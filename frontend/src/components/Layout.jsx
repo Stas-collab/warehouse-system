@@ -38,10 +38,22 @@ function Layout({ children }) {
           <NavLink to="/categories" className={linkClass}>
             Категорії
           </NavLink>
+          <NavLink to="/locations" className={linkClass}>
+            Локації
+          </NavLink>
+          {user?.role === "admin" && (
+            <NavLink to="/managers" className={linkClass}>
+              Менеджери
+            </NavLink>
+          )}
         </nav>
 
         <div className="flex flex-col gap-2 pt-4 border-t border-slate-600">
-          {user && <span className="text-sm text-slate-300">{user.name}</span>}
+          {user && (
+            <span className="text-sm text-slate-300">
+              {user.name} {user.role === "admin" ? "(адмін)" : ""}
+            </span>
+          )}
           <button
             onClick={handleLogout}
             className="bg-slate-600 hover:bg-slate-500 rounded-md py-2 text-sm"
