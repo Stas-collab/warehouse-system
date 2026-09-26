@@ -9,7 +9,7 @@ router.get("/", auth, async (req, res) => {
   try {
     const { product, type, from, to, page = 1, limit = 20 } = req.query;
 
-    const filter = {};
+    const filter = { tenantId: req.user.tenantId };
     if (product) filter.product = product;
     if (type) filter.type = type;
     if (from || to) {
@@ -36,10 +36,9 @@ router.get("/", auth, async (req, res) => {
       pages: Math.ceil(total / limit),
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Failed to get movements",
-      error: error.message,
-    });
+    res
+      .status(500)
+      .json({ message: "Failed to get movements", error: error.message });
   }
 });
 
@@ -47,6 +46,7 @@ router.get("/product/:productId", auth, async (req, res) => {
   try {
     const movements = await StockMovement.find({
       product: req.params.productId,
+      tenantId: req.user.tenantId,
     })
       .populate("user", "name")
       .populate("fromLocation", "name")
@@ -55,10 +55,12 @@ router.get("/product/:productId", auth, async (req, res) => {
 
     res.json(movements);
   } catch (error) {
-    res.status(500).json({
-      message: "Failed to get product movements",
-      error: error.message,
-    });
+    res
+      .status(500)
+      .json({
+        message: "Failed to get product movements",
+        error: error.message,
+      });
   }
 });
 
@@ -75,23 +77,26 @@ router.post("/", auth, async (req, res) => {
     } = req.body;
 
     if (!productId || !type || quantity == null) {
-      return res.status(400).json({
-        message: "product, type and quantity are required",
-      });
+      return res
+        .status(400)
+        .json({ message: "product, type and quantity are required" });
     }
 
     if (quantity <= 0) {
-      return res.status(400).json({
-        message: "quantity must be greater than 0",
-      });
+      return res
+        .status(400)
+        .json({ message: "quantity must be greater than 0" });
     }
 
-    const product = await Product.findById(productId);
+    // Перевірка, що товар належить складу поточного користувача —
+    // без цього можна було б вручну підставити чужий productId в тілі запиту.
+    const product = await Product.findOne({
+      _id: productId,
+      tenantId: req.user.tenantId,
+    });
 
     if (!product) {
-      return res.status(404).json({
-        message: "Product not found",
-      });
+      return res.status(404).json({ message: "Product not found" });
     }
 
     switch (type) {
@@ -101,18 +106,16 @@ router.post("/", auth, async (req, res) => {
 
       case "outgoing":
         if (product.quantity < quantity) {
-          return res.status(400).json({
-            message: "Insufficient stock",
-          });
+          return res.status(400).json({ message: "Insufficient stock" });
         }
         product.quantity -= quantity;
         break;
 
       case "transfer":
         if (!toLocation) {
-          return res.status(400).json({
-            message: "toLocation is required for transfer",
-          });
+          return res
+            .status(400)
+            .json({ message: "toLocation is required for transfer" });
         }
         product.location = toLocation;
         break;
@@ -122,9 +125,7 @@ router.post("/", auth, async (req, res) => {
         break;
 
       default:
-        return res.status(400).json({
-          message: "Invalid movement type",
-        });
+        return res.status(400).json({ message: "Invalid movement type" });
     }
 
     await product.save();
@@ -132,6 +133,7 @@ router.post("/", auth, async (req, res) => {
     const movement = await StockMovement.create({
       product: productId,
       user: req.user.id,
+      tenantId: req.user.tenantId,
       type,
       quantity,
       fromLocation: fromLocation || null,
@@ -148,10 +150,9 @@ router.post("/", auth, async (req, res) => {
 
     res.status(201).json(populatedMovement);
   } catch (error) {
-    res.status(500).json({
-      message: "Failed to create movement",
-      error: error.message,
-    });
+    res
+      .status(500)
+      .json({ message: "Failed to create movement", error: error.message });
   }
 });
 
