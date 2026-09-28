@@ -4,6 +4,7 @@ import { api } from "../api";
 function Movements() {
   const [movements, setMovements] = useState([]);
   const [products, setProducts] = useState([]);
+  const [locations, setLocations] = useState([]);
   const [error, setError] = useState("");
   const [showForm, setShowForm] = useState(false);
 
@@ -31,6 +32,10 @@ function Movements() {
     api
       .get("/products")
       .then(setProducts)
+      .catch(() => {});
+    api
+      .get("/locations")
+      .then(setLocations)
       .catch(() => {});
   }, []);
 
@@ -128,14 +133,19 @@ function Movements() {
           />
 
           {form.type === "transfer" && (
-            <input
-              type="text"
-              placeholder="ID нового місця зберігання"
+            <select
               value={form.toLocation}
               onChange={(e) => handleChange("toLocation", e.target.value)}
               required
               className={inputClass}
-            />
+            >
+              <option value="">Нова локація</option>
+              {locations.map((l) => (
+                <option key={l._id} value={l._id}>
+                  {l.name}
+                </option>
+              ))}
+            </select>
           )}
 
           <input

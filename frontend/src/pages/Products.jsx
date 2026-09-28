@@ -5,9 +5,13 @@ function Products() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
+  const [locations, setLocations] = useState([]);
   const [error, setError] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
+
+  const user = JSON.parse(localStorage.getItem("user") || "null");
+  const isAdmin = user?.role === "admin";
 
   const emptyForm = {
     name: "",
@@ -40,6 +44,10 @@ function Products() {
       .get("/suppliers")
       .then(setSuppliers)
       .catch(() => {});
+    api
+      .get("/locations")
+      .then(setLocations)
+      .catch(() => {});
   }, []);
 
   function openCreateForm() {
@@ -69,10 +77,14 @@ function Products() {
     setError("");
 
     try {
+      const payload = { ...form };
+      if (!payload.supplier) delete payload.supplier;
+      if (!payload.location) delete payload.location;
+
       if (editingId) {
-        await api.put(`/products/${editingId}`, form);
+        await api.put(`/products/${editingId}`, payload);
       } else {
-        await api.post("/products", form);
+        await api.post("/products", payload);
       }
       setShowForm(false);
       loadProducts();
@@ -168,6 +180,19 @@ function Products() {
           </select>
 
           <select
+            value={form.location}
+            onChange={(e) => handleChange("location", e.target.value)}
+            className={inputClass}
+          >
+            <option value="">Локація</option>
+            {locations.map((l) => (
+              <option key={l._id} value={l._id}>
+                {l.name}
+              </option>
+            ))}
+          </select>
+
+          <select
             value={form.unit}
             onChange={(e) => handleChange("unit", e.target.value)}
             className={inputClass}
@@ -232,6 +257,7 @@ function Products() {
             <th className="px-3 py-2">Назва</th>
             <th className="px-3 py-2">SKU</th>
             <th className="px-3 py-2">Категорія</th>
+            <th className="px-3 py-2">Локація</th>
             <th className="px-3 py-2">Кількість</th>
             <th className="px-3 py-2">Ціна</th>
             <th className="px-3 py-2"></th>
@@ -243,6 +269,7 @@ function Products() {
               <td className="px-3 py-2">{p.name}</td>
               <td className="px-3 py-2">{p.sku}</td>
               <td className="px-3 py-2">{p.category?.name}</td>
+              <td className="px-3 py-2">{p.location?.name || "—"}</td>
               <td className="px-3 py-2">{p.quantity}</td>
               <td className="px-3 py-2">{p.price} грн</td>
               <td className="px-3 py-2 flex gap-2">
@@ -252,12 +279,14 @@ function Products() {
                 >
                   Ред.
                 </button>
-                <button
-                  onClick={() => handleDelete(p._id)}
-                  className="text-red-600 hover:underline"
-                >
-                  Вид.
-                </button>
+                {isAdmin && (
+                  <button
+                    onClick={() => handleDelete(p._id)}
+                    className="text-red-600 hover:underline"
+                  >
+                    Вид.
+                  </button>
+                )}
               </td>
             </tr>
           ))}

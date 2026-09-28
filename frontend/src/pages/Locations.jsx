@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { api } from "../api";
 
-function Suppliers() {
-  const [suppliers, setSuppliers] = useState([]);
+function Locations() {
+  const [locations, setLocations] = useState([]);
   const [error, setError] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -10,24 +10,18 @@ function Suppliers() {
   const user = JSON.parse(localStorage.getItem("user") || "null");
   const isAdmin = user?.role === "admin";
 
-  const emptyForm = {
-    name: "",
-    phone: "",
-    email: "",
-    address: "",
-  };
-
+  const emptyForm = { name: "", description: "" };
   const [form, setForm] = useState(emptyForm);
 
-  function loadSuppliers() {
+  function loadLocations() {
     api
-      .get("/suppliers")
-      .then(setSuppliers)
+      .get("/locations")
+      .then(setLocations)
       .catch((err) => setError(err.message));
   }
 
   useEffect(() => {
-    loadSuppliers();
+    loadLocations();
   }, []);
 
   function openCreateForm() {
@@ -36,14 +30,9 @@ function Suppliers() {
     setShowForm(true);
   }
 
-  function openEditForm(supplier) {
-    setForm({
-      name: supplier.name,
-      phone: supplier.phone,
-      email: supplier.email,
-      address: supplier.address,
-    });
-    setEditingId(supplier._id);
+  function openEditForm(location) {
+    setForm({ name: location.name, description: location.description });
+    setEditingId(location._id);
     setShowForm(true);
   }
 
@@ -53,23 +42,23 @@ function Suppliers() {
 
     try {
       if (editingId) {
-        await api.put(`/suppliers/${editingId}`, form);
+        await api.put(`/locations/${editingId}`, form);
       } else {
-        await api.post("/suppliers", form);
+        await api.post("/locations", form);
       }
       setShowForm(false);
-      loadSuppliers();
+      loadLocations();
     } catch (err) {
       setError(err.message);
     }
   }
 
   async function handleDelete(id) {
-    if (!confirm("Видалити постачальника?")) return;
+    if (!confirm("Видалити локацію?")) return;
 
     try {
-      await api.delete(`/suppliers/${id}`);
-      loadSuppliers();
+      await api.delete(`/locations/${id}`);
+      loadLocations();
     } catch (err) {
       setError(err.message);
     }
@@ -85,13 +74,13 @@ function Suppliers() {
   return (
     <div>
       <div className="flex justify-between items-center mb-5">
-        <h1 className="text-2xl font-semibold">Постачальники</h1>
+        <h1 className="text-2xl font-semibold">Локації</h1>
         {isAdmin && (
           <button
             onClick={openCreateForm}
             className="bg-blue-600 hover:bg-blue-700 text-white rounded-md px-4 py-2"
           >
-            + Додати постачальника
+            + Додати локацію
           </button>
         )}
       </div>
@@ -118,25 +107,9 @@ function Suppliers() {
 
           <input
             type="text"
-            placeholder="Телефон"
-            value={form.phone}
-            onChange={(e) => handleChange("phone", e.target.value)}
-            className={inputClass}
-          />
-
-          <input
-            type="email"
-            placeholder="Email"
-            value={form.email}
-            onChange={(e) => handleChange("email", e.target.value)}
-            className={inputClass}
-          />
-
-          <input
-            type="text"
-            placeholder="Адреса"
-            value={form.address}
-            onChange={(e) => handleChange("address", e.target.value)}
+            placeholder="Опис"
+            value={form.description}
+            onChange={(e) => handleChange("description", e.target.value)}
             className={inputClass}
           />
 
@@ -162,29 +135,25 @@ function Suppliers() {
         <thead>
           <tr className="bg-slate-100 text-left">
             <th className="px-3 py-2">Назва</th>
-            <th className="px-3 py-2">Телефон</th>
-            <th className="px-3 py-2">Email</th>
-            <th className="px-3 py-2">Адреса</th>
+            <th className="px-3 py-2">Опис</th>
             {isAdmin && <th className="px-3 py-2"></th>}
           </tr>
         </thead>
         <tbody>
-          {suppliers.map((s) => (
-            <tr key={s._id} className="border-t border-slate-200">
-              <td className="px-3 py-2">{s.name}</td>
-              <td className="px-3 py-2">{s.phone}</td>
-              <td className="px-3 py-2">{s.email}</td>
-              <td className="px-3 py-2">{s.address}</td>
+          {locations.map((l) => (
+            <tr key={l._id} className="border-t border-slate-200">
+              <td className="px-3 py-2">{l.name}</td>
+              <td className="px-3 py-2">{l.description}</td>
               {isAdmin && (
                 <td className="px-3 py-2 flex gap-2">
                   <button
-                    onClick={() => openEditForm(s)}
+                    onClick={() => openEditForm(l)}
                     className="text-blue-600 hover:underline"
                   >
                     Ред.
                   </button>
                   <button
-                    onClick={() => handleDelete(s._id)}
+                    onClick={() => handleDelete(l._id)}
                     className="text-red-600 hover:underline"
                   >
                     Вид.
@@ -199,4 +168,4 @@ function Suppliers() {
   );
 }
 
-export default Suppliers;
+export default Locations;

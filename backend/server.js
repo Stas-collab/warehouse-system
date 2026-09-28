@@ -2,6 +2,12 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 
+import "./models/Location.js";
+
+import locationRoutes from "./routes/locations.js";
+
+import dashboardRoutes from "./routes/dashboard.js";
+
 import movementRoutes from "./routes/movements.js";
 
 import authRoutes from "./routes/auth.js";
@@ -21,6 +27,8 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/movements", movementRoutes);
+app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/locations", locationRoutes);
 
 app.use("/api/suppliers", supplierRoutes);
 app.use("/api/categories", categoryRoutes);
