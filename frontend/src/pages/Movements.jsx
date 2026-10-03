@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { api } from "../api";
+import { useSort } from "../hooks/useSort";
+import SortableHeader from "../components/SortableHeader";
 
 function Movements() {
   const [movements, setMovements] = useState([]);
@@ -7,6 +9,13 @@ function Movements() {
   const [locations, setLocations] = useState([]);
   const [error, setError] = useState("");
   const [showForm, setShowForm] = useState(false);
+
+  const {
+    sorted: sortedMovements,
+    sortKey,
+    sortDir,
+    toggleSort,
+  } = useSort(movements, "createdAt");
 
   const emptyForm = {
     product: "",
@@ -185,15 +194,45 @@ function Movements() {
       <table className="w-full bg-white rounded-lg overflow-hidden shadow">
         <thead>
           <tr className="bg-slate-100 text-left">
-            <th className="px-3 py-2">Товар</th>
-            <th className="px-3 py-2">Тип</th>
-            <th className="px-3 py-2">К-сть</th>
-            <th className="px-3 py-2">Користувач</th>
-            <th className="px-3 py-2">Дата</th>
+            <SortableHeader
+              label="Товар"
+              sortKeyName="product.name"
+              sortKey={sortKey}
+              sortDir={sortDir}
+              onSort={toggleSort}
+            />
+            <SortableHeader
+              label="Тип"
+              sortKeyName="type"
+              sortKey={sortKey}
+              sortDir={sortDir}
+              onSort={toggleSort}
+            />
+            <SortableHeader
+              label="К-сть"
+              sortKeyName="quantity"
+              sortKey={sortKey}
+              sortDir={sortDir}
+              onSort={toggleSort}
+            />
+            <SortableHeader
+              label="Користувач"
+              sortKeyName="user.name"
+              sortKey={sortKey}
+              sortDir={sortDir}
+              onSort={toggleSort}
+            />
+            <SortableHeader
+              label="Дата"
+              sortKeyName="createdAt"
+              sortKey={sortKey}
+              sortDir={sortDir}
+              onSort={toggleSort}
+            />
           </tr>
         </thead>
         <tbody>
-          {movements.map((m) => (
+          {sortedMovements.map((m) => (
             <tr key={m._id} className="border-t border-slate-200">
               <td className="px-3 py-2">{m.product?.name}</td>
               <td className="px-3 py-2">{typeLabels[m.type]}</td>

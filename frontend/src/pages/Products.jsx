@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { api } from "../api";
+import { useSort } from "../hooks/useSort";
+import SortableHeader from "../components/SortableHeader";
 
 function Products() {
   const [products, setProducts] = useState([]);
@@ -12,6 +14,13 @@ function Products() {
 
   const user = JSON.parse(localStorage.getItem("user") || "null");
   const isAdmin = user?.role === "admin";
+
+  const {
+    sorted: sortedProducts,
+    sortKey,
+    sortDir,
+    toggleSort,
+  } = useSort(products, "name");
 
   const emptyForm = {
     name: "",
@@ -254,17 +263,53 @@ function Products() {
       <table className="w-full bg-white rounded-lg overflow-hidden shadow">
         <thead>
           <tr className="bg-slate-100 text-left">
-            <th className="px-3 py-2">Назва</th>
-            <th className="px-3 py-2">SKU</th>
-            <th className="px-3 py-2">Категорія</th>
-            <th className="px-3 py-2">Локація</th>
-            <th className="px-3 py-2">Кількість</th>
-            <th className="px-3 py-2">Ціна</th>
+            <SortableHeader
+              label="Назва"
+              sortKeyName="name"
+              sortKey={sortKey}
+              sortDir={sortDir}
+              onSort={toggleSort}
+            />
+            <SortableHeader
+              label="SKU"
+              sortKeyName="sku"
+              sortKey={sortKey}
+              sortDir={sortDir}
+              onSort={toggleSort}
+            />
+            <SortableHeader
+              label="Категорія"
+              sortKeyName="category.name"
+              sortKey={sortKey}
+              sortDir={sortDir}
+              onSort={toggleSort}
+            />
+            <SortableHeader
+              label="Локація"
+              sortKeyName="location.name"
+              sortKey={sortKey}
+              sortDir={sortDir}
+              onSort={toggleSort}
+            />
+            <SortableHeader
+              label="Кількість"
+              sortKeyName="quantity"
+              sortKey={sortKey}
+              sortDir={sortDir}
+              onSort={toggleSort}
+            />
+            <SortableHeader
+              label="Ціна"
+              sortKeyName="price"
+              sortKey={sortKey}
+              sortDir={sortDir}
+              onSort={toggleSort}
+            />
             <th className="px-3 py-2"></th>
           </tr>
         </thead>
         <tbody>
-          {products.map((p) => (
+          {sortedProducts.map((p) => (
             <tr key={p._id} className="border-t border-slate-200">
               <td className="px-3 py-2">{p.name}</td>
               <td className="px-3 py-2">{p.sku}</td>

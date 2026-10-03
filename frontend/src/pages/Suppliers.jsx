@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { api } from "../api";
+import { useSort } from "../hooks/useSort";
+import SortableHeader from "../components/SortableHeader";
 
 function Suppliers() {
   const [suppliers, setSuppliers] = useState([]);
@@ -9,6 +11,13 @@ function Suppliers() {
 
   const user = JSON.parse(localStorage.getItem("user") || "null");
   const isAdmin = user?.role === "admin";
+
+  const {
+    sorted: sortedSuppliers,
+    sortKey,
+    sortDir,
+    toggleSort,
+  } = useSort(suppliers, "name");
 
   const emptyForm = {
     name: "",
@@ -161,15 +170,39 @@ function Suppliers() {
       <table className="w-full bg-white rounded-lg overflow-hidden shadow">
         <thead>
           <tr className="bg-slate-100 text-left">
-            <th className="px-3 py-2">Назва</th>
-            <th className="px-3 py-2">Телефон</th>
-            <th className="px-3 py-2">Email</th>
-            <th className="px-3 py-2">Адреса</th>
+            <SortableHeader
+              label="Назва"
+              sortKeyName="name"
+              sortKey={sortKey}
+              sortDir={sortDir}
+              onSort={toggleSort}
+            />
+            <SortableHeader
+              label="Телефон"
+              sortKeyName="phone"
+              sortKey={sortKey}
+              sortDir={sortDir}
+              onSort={toggleSort}
+            />
+            <SortableHeader
+              label="Email"
+              sortKeyName="email"
+              sortKey={sortKey}
+              sortDir={sortDir}
+              onSort={toggleSort}
+            />
+            <SortableHeader
+              label="Адреса"
+              sortKeyName="address"
+              sortKey={sortKey}
+              sortDir={sortDir}
+              onSort={toggleSort}
+            />
             {isAdmin && <th className="px-3 py-2"></th>}
           </tr>
         </thead>
         <tbody>
-          {suppliers.map((s) => (
+          {sortedSuppliers.map((s) => (
             <tr key={s._id} className="border-t border-slate-200">
               <td className="px-3 py-2">{s.name}</td>
               <td className="px-3 py-2">{s.phone}</td>

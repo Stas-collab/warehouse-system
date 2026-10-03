@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { api } from "../api";
+import { useSort } from "../hooks/useSort";
+import SortableHeader from "../components/SortableHeader";
 
 function Locations() {
   const [locations, setLocations] = useState([]);
@@ -9,6 +11,13 @@ function Locations() {
 
   const user = JSON.parse(localStorage.getItem("user") || "null");
   const isAdmin = user?.role === "admin";
+
+  const {
+    sorted: sortedLocations,
+    sortKey,
+    sortDir,
+    toggleSort,
+  } = useSort(locations, "name");
 
   const emptyForm = { name: "", description: "" };
   const [form, setForm] = useState(emptyForm);
@@ -134,13 +143,25 @@ function Locations() {
       <table className="w-full bg-white rounded-lg overflow-hidden shadow">
         <thead>
           <tr className="bg-slate-100 text-left">
-            <th className="px-3 py-2">Назва</th>
-            <th className="px-3 py-2">Опис</th>
+            <SortableHeader
+              label="Назва"
+              sortKeyName="name"
+              sortKey={sortKey}
+              sortDir={sortDir}
+              onSort={toggleSort}
+            />
+            <SortableHeader
+              label="Опис"
+              sortKeyName="description"
+              sortKey={sortKey}
+              sortDir={sortDir}
+              onSort={toggleSort}
+            />
             {isAdmin && <th className="px-3 py-2"></th>}
           </tr>
         </thead>
         <tbody>
-          {locations.map((l) => (
+          {sortedLocations.map((l) => (
             <tr key={l._id} className="border-t border-slate-200">
               <td className="px-3 py-2">{l.name}</td>
               <td className="px-3 py-2">{l.description}</td>
